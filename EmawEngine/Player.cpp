@@ -15,7 +15,7 @@ Player::Player(GraphicsDeviceInterface* gdi, VoxelMap* worldGenerator)
 	_position->z = 8;
 	std::memcpy(_lastPosition, _position, sizeof(Vector));
 
-	box.SetDimensions(1, 2, 1);
+	box.SetDimensions(.5, 1, .5);
 	box.SetCurPos(_position);
 	box.SetLastPos(_lastPosition);
 
@@ -70,7 +70,7 @@ void Player::updatePlayer(HWND hWnd, DWORD elapsedTime)
 	float zvel = 0;
 	float xvel = 0;
 	float yvel = 0;
-	bool test = hasCollision();
+	bool test = false;//hasCollision();
 	if (input->keyDown(Key::W))
 	{
 		zvel += speed * eTinSeconds;

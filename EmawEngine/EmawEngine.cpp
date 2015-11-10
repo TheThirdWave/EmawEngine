@@ -167,8 +167,8 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 //	modelPrimer->addChild(player->node);
 
 	
-	CollisionManager::getInstance()->addMovingCollidable(player);
-	CollisionManager::getInstance()->loadLevel(1);
+	//CollisionManager::getInstance()->addMovingCollidable(player);
+	//CollisionManager::getInstance()->loadLevel(1);
 
 	gdi.SetSceneGraphRoot(root);
 	gdi.SetCamera(player->getCamera());
@@ -250,6 +250,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 				networkManager->update(10);
 
 				CollisionManager::getInstance()->checkCollisions();
+				CollisionManager::getInstance()->checkVMapCollision(&player->box, worldGenerator);
 				//base2->rotateX(0.0005);
 				//base->rotateY(0.0005);
 			}
@@ -265,7 +266,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 			string tes = std::to_string(v->x) + " " + std::to_string(v->y) + " " + std::to_string(v->z) + " " + std::to_string(v2->x) + " " + std::to_string(v2->y) + " " + std::to_string(v2->z);
 			wstring te = std::wstring(tes.begin(), tes.end());
 			wstring test = fc.GetFps();
-			SetWindowText(hWnd, (LPCWSTR)&test[0]);
+			SetWindowText(hWnd, (LPCWSTR)&te[0]);
 
 			// Update the input
 			inputManager->update();

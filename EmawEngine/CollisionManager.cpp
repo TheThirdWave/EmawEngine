@@ -138,18 +138,59 @@ bool CollisionManager::checkVMapCollision(BoxCollidable* obj, VoxelMap* map)
 	lastPos.x = obj->getLastX();
 	lastPos.y = obj->getLastY();
 	lastPos.z = obj->getLastZ();
+	Vector dimensions = obj->getDimensions();
+	Vector movVec = VectorSubtract(curPos, lastPos);
 
 	Chunk* chunk = map->GetChunk(curPos.x / CHUNK_SIZE, curPos.z / CHUNK_SIZE);
+	int chunkX = chunk->coord_X;
+	int chunkY = chunk->coord_Y;
 
-	for (int i = curPos.x - 1; i < curPos.x + 2; i++)
+	for (int i = (int)(curPos.x - dimensions.x * 2) % CHUNK_SIZE; i <= (int)(curPos.x + dimensions.x * 2) % (CHUNK_SIZE + 1); i++)
 	{
-		for (int j = curPos.y - 2; j < curPos.y + 2; j++)
+		for (int j = (int)(curPos.y - dimensions.y * 2) % CHUNK_HEIGHT; j <= (int)(curPos.y + dimensions.y * 2) % (CHUNK_HEIGHT + 1); j++)
 		{
-			for (int k = curPos.z - 1; k < curPos.z + 2; k++)
+			for (int k = (int)(curPos.z - dimensions.z * 2) % CHUNK_SIZE; k <= (int)(curPos.z + dimensions.z * 2) % (CHUNK_SIZE + 1); k++)
 			{
 				if (chunk->chunk[i][j][k] == 1)
 				{
+					//Get actual location of box.
+					float boxX = (int)(curPos.x / CHUNK_SIZE) * CHUNK_SIZE + i + VOXELSIZE;
+					float boxY = (int)(curPos.y / CHUNK_HEIGHT) * CHUNK_HEIGHT + j + VOXELSIZE;
+					float boxZ = (int)(curPos.z / CHUNK_SIZE) * CHUNK_SIZE + k + VOXELSIZE;
+					//first check to see if the current position is actually colliding with the block. If it isn't, continue to the next block.
+					float closeX = findMinDiff(curPos.x - dimensions.x, curPos.x + dimensions.x, boxX);
+					float closeY = findMinDiff(curPos.y - dimensions.y, curPos.y + dimensions.y, boxY);
+					float closeZ = findMinDiff(curPos.z - dimensions.z, curPos.z + dimensions.z, boxZ);
+					if (!(closeX >= boxX - VOXELSIZE && closeX <= boxX + VOXELSIZE) || !(closeY >= boxY - VOXELSIZE && closeY <= boxY + VOXELSIZE) || !(closeZ >= boxZ - VOXELSIZE && closeZ <= boxZ + VOXELSIZE)) continue;
 
+					//then get the sides of the box closest to the collision point.
+					closeX = findMinDiff(lastPos.x - dimensions.x, lastPos.x + dimensions.x, boxX);
+					closeY = findMinDiff(lastPos.y - dimensions.y, lastPos.y + dimensions.y, boxY);
+					closeZ = findMinDiff(lastPos.z - dimensions.z, lastPos.z + dimensions.z, boxZ);
+
+					//Now get the direction the box was moving and use that vector to move the box to the correct side of the block...I think, it's been awhile since I've looked at this.
+					float coeff;
+					(movVec.x != 0) ? coeff = (findMinDiff(boxX - VOXELSIZE, boxX + VOXELSIZE, closeX) - closeX) / movVec.x : coeff = 0;
+					Vector midway = VectorAdd(lastPos, ScalarMultiply(movVec, coeff));
+					if (coeff >= 0 && (midway.y >= boxY - VOXELSIZE && midway.y <= boxY + VOXELSIZE && midway.z >= boxZ - VOXELSIZE && midway.z <= boxZ + VOXELSIZE))
+					{
+						obj->pushBack(midway.x, curPos.y, curPos.z);
+						continue;
+					}
+					(movVec.y != 0) ? coeff = (findMinDiff(boxY - VOXELSIZE, boxY + VOXELSIZE, closeY) - closeY) / movVec.y : coeff = 0;
+					midway = VectorAdd(lastPos, ScalarMultiply(movVec, coeff));
+					if (coeff >= 0 && (midway.x >= boxX - VOXELSIZE && midway.x <= boxX + VOXELSIZE && midway.z >= boxZ - VOXELSIZE && midway.z <= boxZ + VOXELSIZE))
+					{
+						obj->pushBack(curPos.x, midway.y, curPos.z);
+						continue;
+					}
+					(movVec.z != 0) ? coeff = (findMinDiff(boxZ - VOXELSIZE, boxZ + VOXELSIZE, closeZ) - closeZ) / movVec.z : coeff = 0;
+					midway = VectorAdd(lastPos, ScalarMultiply(movVec, coeff));
+					if (coeff >= 0 && (midway.x >= boxX - VOXELSIZE && midway.x <= boxX + VOXELSIZE && midway.y >= boxY - VOXELSIZE && midway.y <= boxY + VOXELSIZE))
+					{
+						obj->pushBack(curPos.x, curPos.y, midway.z);
+						continue;
+					}
 				}
 			}
 		}

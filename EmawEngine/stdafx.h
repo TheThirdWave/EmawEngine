@@ -47,6 +47,7 @@ using namespace std;
 #include "VoxelChunkNode.h"
 #include "Camera.h"
 #include "VoxelMap.h"
+#include "MathCore.h"
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")

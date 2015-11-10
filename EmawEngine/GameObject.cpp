@@ -29,7 +29,7 @@ void GameObject::update(float gameTime) {
 		_velocity->z = 0;
 	}
 
-	std::memcpy(_lastPosition, _position, sizeof(Vector));
+	if(_velocity->x != 0 || _velocity->y != 0 || _velocity->z != 0) std::memcpy(_lastPosition, _position, sizeof(Vector));
 	_position->x += _velocity->x;
 	_position->y += (_velocity->y);
 	_position->z += _velocity->z;
@@ -119,7 +119,7 @@ void GameObject::pushBack(){
 }
 
 void GameObject::pushBack(float x, float y, float z){
-	_position->x = _lastPosition->x = x;
-	_position->y = _lastPosition->y = y;
-	_position->z = _lastPosition->z = z;
+	_position->x = x;
+	_position->y = y;
+	_position->z = z;
 }

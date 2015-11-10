@@ -44,7 +44,10 @@ void BoxCollidable::pushBack()
 
 void BoxCollidable::pushBack(float x, float y, float z)
 {
-
+	curPos->x = x;
+	curPos->y = y;
+	curPos->z = z;
+	return;
 }
 
 Vector BoxCollidable::getDimensions()

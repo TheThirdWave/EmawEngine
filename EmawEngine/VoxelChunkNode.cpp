@@ -7,7 +7,7 @@ VoxelChunkNode::VoxelChunkNode(int inx, int iny)
 {
 	gridx = inx;
 	gridy = iny;
-	voxSize = 0.5f;
+	voxSize = VOXELSIZE;
 	memset(ChunkBuffer, 0, sizeof(VERTEX) * 65025);
 	transform = new Transform();
 	float x = gridx * (2 * voxSize) * CHUNK_SIZE;
@@ -91,9 +91,9 @@ void VoxelChunkNode::loadChunkBuffer(VoxelMap* mapGenerator)
 			}
 			for (int k = lowest; k <= center; k++)
 			{
-				ChunkBuffer[length].X = (float)i;
-				ChunkBuffer[length].Y = (float)k;
-				ChunkBuffer[length].Z = (float)j;
+				ChunkBuffer[length].X = (float)i + voxSize;
+				ChunkBuffer[length].Y = (float)k + voxSize;
+				ChunkBuffer[length].Z = (float)j + voxSize;
 				ChunkBuffer[length].W = voxSize;
 				float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 				float g = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);

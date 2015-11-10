@@ -5,6 +5,7 @@
 #include <DirectXMath.h>
 #include <d3dx10math.h>
 
+#define VOXELSIZE 0.5f
 
 struct Vector {
 	float x;

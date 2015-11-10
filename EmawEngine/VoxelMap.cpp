@@ -231,14 +231,14 @@ Chunk VoxelMap::CreateChunk(int coord_x, int coord_y, float freq, int floor)
 
 				for (int c = 0; c < ch.height_map[a][b]; c++)
 				{
-					ch.chunk[a][b][c] = (short)1;
+					ch.chunk[a][c][b] = (short)1;
 				}
 			}
 		}
 
 		return ch;
 	}
-	throw invalid_argument("Invalid frequency value. Frequency must be between 1, and 50.");
+	throw invalid_argument("Invalid frequency value. Frequency must be between 1, and 21.");
 }
 
 /* CreateChunk(Chunk ch);
@@ -254,7 +254,7 @@ void VoxelMap::CreateChunk(Chunk ch)
 		{
 			for (int c = 0; c < ch.height_map[a][b]; c++)
 			{
-				ch.chunk[a][b][c] = (short)1;
+				ch.chunk[a][c][b] = (short)1;
 			}
 		}
 	}
