@@ -39,7 +39,7 @@ void ModelNode::update(D3DXMATRIX* otherTransform){
 
 void ModelNode::render(){
 
-	gdi->VertexPipeline(m_VertBuffer, &m_Model->getVertexBuffer(), m_Transform->getTransformMatrix(), m_Model->GetTexture());
+	gdi->VertexPipeline(m_VertBuffer, m_IndexBuffer, &m_Model->getVertexBuffer(), &m_Model->getIndexBuffer(), m_Transform->getTransformMatrix(), m_Model->GetTexture());
 
 	//Render children.
 	for (int i = 0; i < children.size(); i++){
@@ -50,10 +50,16 @@ void ModelNode::render(){
 void ModelNode::setGraphicsDeviceInterface(GraphicsDeviceInterface* graphicsDeviceInterface){
 	gdi = graphicsDeviceInterface;
 	initializeVertexBuffer();
+	initializeIndexBuffer();
 }
 
 void ModelNode::initializeVertexBuffer(){
 	m_VertBuffer = gdi->CreateVertexBuffer(m_Model->getVertexBuffer().size());
+}
+
+void ModelNode::initializeIndexBuffer()
+{
+	m_IndexBuffer = gdi->CreateIndexBuffer(m_Model->getIndexBuffer().size());
 }
 
 void ModelNode::addChild(SceneGraphNode* child){

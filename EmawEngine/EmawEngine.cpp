@@ -101,7 +101,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	modelPrimer->setGraphicsDeviceInterface(&gdi);
 	modelPrimer->setShader((ShaderAsset *)assetManager->load("Shaders.col"));
 	root->addChild(modelPrimer);
-	bool renderVoxels = true;
+	bool renderVoxels = false;
 	if (renderVoxels) {
 		VoxelChunkNode* world[7][7];
 		for (int i = 0; i < worldGenerator->map.size; i++)
@@ -119,8 +119,9 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
 	bool do_cube = false;
 	bool do_pill = false;
-	bool do_cat = false;
-	bool do_ship = true;
+	bool do_cat = true;
+	bool do_ship = false;
+	bool do_teapot = true;
 	if (do_cube) {
 		Model* cube = new Model();
 		cube->load("models/obj-models/cube-tex.obj");
@@ -149,7 +150,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 		ModelNode* catNode = new ModelNode(cat);
 		catNode->setGraphicsDeviceInterface(&gdi);
 
-//		modelPrimer->addChild(catNode);
+		modelPrimer->addChild(catNode);
 	}
 	if (do_ship) {
 		Model* ship = new Model();
@@ -161,10 +162,22 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
 		modelPrimer->addChild(shipNode);
 	}
+	if (do_teapot)
+	{
+		Model* teapot = new Model();
+		teapot->load("models/obj-models/utah-teapot.obj");
+		teapot->LoadTexture(gdi.m_Device, "textures/cat-flipped.png");
+
+		ModelNode* teapotNode = new ModelNode(teapot);
+		teapotNode->setGraphicsDeviceInterface(&gdi);
+		teapotNode->setPosition(0, 0, 1.0f);
+
+		modelPrimer->addChild(teapotNode);
+	}
 	//Controls the camera, WASD to move along the xz plane, Space and Ctrl to move up and down.
 	Player* player = new Player(&gdi, worldGenerator);
 
-//	modelPrimer->addChild(player->node);
+	modelPrimer->addChild(player->node);
 
 	
 	//CollisionManager::getInstance()->addMovingCollidable(player);
@@ -249,8 +262,11 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 					networkManager->addInput("wPressed");
 				networkManager->update(10);
 
-				CollisionManager::getInstance()->checkCollisions();
-				CollisionManager::getInstance()->checkVMapCollision(&player->box, worldGenerator);
+				if (renderVoxels)
+				{
+					CollisionManager::getInstance()->checkCollisions();
+					CollisionManager::getInstance()->checkVMapCollision(&player->box, worldGenerator);
+				}
 				//base2->rotateX(0.0005);
 				//base->rotateY(0.0005);
 			}

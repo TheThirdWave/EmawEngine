@@ -320,14 +320,16 @@ bool GraphicsDeviceInterface::Render()
 	return true;
 }
 
-bool GraphicsDeviceInterface::RenderModel(ID3D11Buffer* vertexBuffer){
+bool GraphicsDeviceInterface::RenderModel(ID3D11Buffer* vertexBuffer, ID3D11Buffer* indexBuffer){
 
 	UINT stride = sizeof(VERTEX);
 	UINT offset = 0;
 	m_Context->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
 
+	m_Context->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
 	// select which primtive type we are using
-	m_Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	m_Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 	return true;
 
@@ -347,15 +349,22 @@ bool GraphicsDeviceInterface::RenderVoxel(ID3D11Buffer* vertexBuffer){
 
 }
 
-bool GraphicsDeviceInterface::Update(ID3D11Buffer* vertexBuffer, std::vector<VERTEX>* vertices){
+int numIndicies = 2;
+
+bool GraphicsDeviceInterface::Update(ID3D11Buffer* vertexBuffer, ID3D11Buffer* indexBuffer, std::vector<VERTEX>* vertices, std::vector<int>* indicies){
 
 	D3D11_MAPPED_SUBRESOURCE ms;
 	m_Context->Map(vertexBuffer, NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms);   // map the buffer
 	memcpy(ms.pData, vertices->data(), vertices->size() * sizeof(VERTEX));    // copy the data
 	m_Context->Unmap(vertexBuffer, NULL);
+	
+	m_Context->Map(indexBuffer, NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms);
+	memcpy(ms.pData, indicies->data(), indicies->size() * sizeof(int));
+	m_Context->Unmap(indexBuffer, NULL);
 
 	// Render the triangle.
-	m_Context->Draw(vertices->size(), 0);
+	m_Context->DrawIndexed(indicies->size(), 0, 0);
+	//m_Context->DrawIndexed(numIndicies * 4, 0, 0);
 
 	return true;
 }
@@ -366,6 +375,7 @@ bool GraphicsDeviceInterface::Update(ID3D11Buffer* vertexBuffer, VERTEX* vertice
 	m_Context->Map(vertexBuffer, NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms);   // map the buffer
 	memcpy(ms.pData, vertices, size * sizeof(VERTEX));                // copy the data
 	m_Context->Unmap(vertexBuffer, NULL);
+
 
 	m_Context->Draw(size*8, 0);
 
@@ -384,14 +394,14 @@ void GraphicsDeviceInterface::RenderShader(){
 	return;
 }
 
-void GraphicsDeviceInterface::VertexPipeline(ID3D11Buffer* vertexBuffer, std::vector<VERTEX>* vertices, D3DXMATRIX* transform, ID3D11ShaderResourceView* texture){
+void GraphicsDeviceInterface::VertexPipeline(ID3D11Buffer* vertexBuffer, ID3D11Buffer* indexBuffer, std::vector<VERTEX>* vertices, std::vector<int>* indicies, D3DXMATRIX* transform, ID3D11ShaderResourceView* texture){
 	
 	//I want to rename these so they make a little more sense.
-	RenderModel(vertexBuffer);
+	RenderModel(vertexBuffer, indexBuffer);
 //	m_VertexShader->initializeShader(m_Device);
 	m_VertexShader->setParameters(m_Context, *transform, m_Camera->GetViewMatrix(), m_projMatrix);
 	m_Context->PSSetShaderResources(1, 1, &texture);
-	Update(vertexBuffer, vertices);
+	Update(vertexBuffer, indexBuffer, vertices, indicies);
 	//RenderShader();
 }
 
@@ -422,3 +432,21 @@ ID3D11Buffer* GraphicsDeviceInterface::CreateVertexBuffer(int numOfVerticies){
 
 	return vertexBuffer;
 }
+
+ID3D11Buffer* GraphicsDeviceInterface::CreateIndexBuffer(int numOfVerticies){
+
+	ID3D11Buffer* indexBuffer;
+
+	D3D11_BUFFER_DESC bd;
+	ZeroMemory(&bd, sizeof(bd));
+
+	bd.Usage = D3D11_USAGE_DYNAMIC;                // write access for both CPU and GPU
+	bd.ByteWidth = sizeof(int) * numOfVerticies;             // size is the number of vertices in the model, I think.
+	bd.BindFlags = D3D11_BIND_INDEX_BUFFER;       // use as an index buffer
+	bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;   // let CPU write to buffer
+
+	m_Device->CreateBuffer(&bd, NULL, &indexBuffer);       // create the buffer
+
+	return indexBuffer;
+}
+

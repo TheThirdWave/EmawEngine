@@ -13,6 +13,7 @@ private:
 	Transform* m_Transform;
 	Model* m_Model;
 	ID3D11Buffer *m_VertBuffer;
+	ID3D11Buffer* m_IndexBuffer;
 	GraphicsDeviceInterface* gdi;
 
 	float *posX, *posY, *posZ;
@@ -29,6 +30,7 @@ public:
 	void addChild(SceneGraphNode*);
 	void setGraphicsDeviceInterface(GraphicsDeviceInterface*);
 	void initializeVertexBuffer();
+	void initializeIndexBuffer();
 
 	void setPosition(float, float, float);
 	void setRotation(float, float, float);

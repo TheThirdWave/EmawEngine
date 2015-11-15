@@ -10,9 +10,9 @@ Player::Player(GraphicsDeviceInterface* gdi, VoxelMap* worldGenerator)
 	speed = 10;
 	fakeRadius = 100;
 
-	_position->x = 20;
-	_position->y = 39;
-	_position->z = 8;
+	_position->x = 0;
+	_position->y = 0;
+	_position->z = 0;
 	std::memcpy(_lastPosition, _position, sizeof(Vector));
 
 	box.SetDimensions(.5, 1, .5);

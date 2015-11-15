@@ -122,7 +122,7 @@ void GShader( point VOut voxel[1], inout TriangleStream<VOut> triStream)
 	v.color.g = 0.0f;
 	triStream.Append(v);
 
-	//make a new triangle strip 'cause I couldn't figure out a way to do the whole cube in one go (there's definitely a way to do it though)
+	//make a new triangle strip 'cause I couldn't figure out a way to do the whole cube in one go (there's definitely a way to do it though)(actually no it turns out it's impossible)
 	triStream.RestartStrip();
 
 	v.position = pt8;//9

@@ -24,6 +24,10 @@ void* Model::load(std::string str) {
 		return NULL;
 	}
 
+	// index buffer positions.
+	int ind = 0;
+	int otherInd = 0;
+
 	// create buffer to hold all vertices
 	const int MAX_VERTICES = 15000;
 	VERTEX vertices[MAX_VERTICES];
@@ -83,8 +87,10 @@ void* Model::load(std::string str) {
 			}
 		}
 		else if (prefix.compare("f") == 0) {
-			for (int i = 0; i < 3; i++) {
-				string entry = strtok(0, " ");
+			string entry = strtok(0, " ");
+			int isQuad = 0;
+			while (!entry.empty()){		
+
 				// stoi will properly ignore the '/'
 				int index = stoi(entry) - 1;
 				// add uv data to vertex
@@ -92,12 +98,29 @@ void* Model::load(std::string str) {
 				vertices[index].U = us[uv_index];
 				vertices[index].V = vs[uv_index];
 				vertexBuffer.push_back(vertices[index]);
-				
+				indexBuffer.push_back(ind++);
+				isQuad++;
+				char* hold = strtok(0, " ");
+				if (hold != NULL) entry = hold;
+				else entry.clear();
 			}
+			if (isQuad == 4) fixForQuad(ind + otherInd);
+			otherInd++;
+			indexBuffer.push_back(-1);
 		}
 	}
 
 	return NULL;
+}
+
+// If there were four face vertices it's a quad and we need
+// to move around some of the indices for it to show up right.
+void Model::fixForQuad(int index)
+{
+	int hold = indexBuffer.at(index - 4);
+	indexBuffer.at(index - 4) = indexBuffer.at(index - 3);
+	indexBuffer.at(index - 3) = indexBuffer.at(index - 2);
+	indexBuffer.at(index - 2) = hold;
 }
 
 void Model::LoadTexture(ID3D11Device* device, string filename){
@@ -117,10 +140,16 @@ void* Model::getData() {
 
 bool Model::unload() {
 	vertexBuffer.clear();
+	indexBuffer.clear();
 	m_Texture = NULL;
 	return true;
 }
 
 std::vector<VERTEX> Model::getVertexBuffer() {
 	return vertexBuffer;
+}
+
+std::vector<int> Model::getIndexBuffer()
+{
+	return indexBuffer;
 }
