@@ -101,7 +101,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	modelPrimer->setGraphicsDeviceInterface(&gdi);
 	modelPrimer->setShader((ShaderAsset *)assetManager->load("Shaders.col"));
 	root->addChild(modelPrimer);
-	bool renderVoxels = false;
+	bool renderVoxels = true;
 	if (renderVoxels) {
 		VoxelChunkNode* world[7][7];
 		for (int i = 0; i < worldGenerator->map.size; i++)
@@ -120,8 +120,8 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	bool do_cube = false;
 	bool do_pill = false;
 	bool do_cat = true;
-	bool do_ship = false;
-	bool do_teapot = true;
+	bool do_ship = true;
+	bool do_teapot = false;
 	if (do_cube) {
 		Model* cube = new Model();
 		cube->load("models/obj-models/cube-tex.obj");
